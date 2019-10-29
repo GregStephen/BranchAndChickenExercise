@@ -21,12 +21,12 @@ namespace BranchAndChicken.Api.Controllers
             return repo.GetAll();
         }
 
-        [HttpGet("{name}")]
+ /*       [HttpGet("{name}")]
         public ActionResult<Trainer> GetByName(string name)
         {
             var repo = new TrainerRepository();
             return repo.Get(name);
-        }
+        }*/
 
         [HttpDelete("{name}")]
         public IActionResult DeleteTrainer(string name)
@@ -36,8 +36,8 @@ namespace BranchAndChicken.Api.Controllers
 
             return Ok();
         }
-        [HttpPut("{id}")]
-        public IActionResult UpdateTrainer(UpdateTrainerCommand updatedTrainerCommand, Guid id)
+/*        [HttpPut("{id}")]
+        public IActionResult UpdateTrainer(UpdateTrainerCommand updatedTrainerCommand, int id)
         {
             var repo = new TrainerRepository();
 
@@ -50,14 +50,13 @@ namespace BranchAndChicken.Api.Controllers
 
            var trainerThatGotUpdated = repo.Update(updatedTrainer, id);
             return Ok(trainerThatGotUpdated);
-        }
+        }*/
 
         [HttpPost]
         public IActionResult CreateTrainer(AddTrainerCommand newTrainerCommand)
         {
             var newTrainer = new Trainer()
             {
-                Id = Guid.NewGuid(),
                 Name = newTrainerCommand.Name,
                 YearsOfExperience = newTrainerCommand.YearsOfExperience,
                 Speciality = newTrainerCommand.Speciality

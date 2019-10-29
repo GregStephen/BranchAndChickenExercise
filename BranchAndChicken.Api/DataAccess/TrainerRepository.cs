@@ -39,6 +39,7 @@ namespace BranchAndChicken.Api.DataAccess
 
         public List<Trainer> GetAll()
         {
+     
             using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
@@ -55,7 +56,7 @@ namespace BranchAndChicken.Api.DataAccess
                     var id = (int)dataReader["Id"];
                     var name = (string)dataReader["Name"];
                     var yearsOfExperience = (int)dataReader["YearsOfExperience"];
-                    Enum.TryParse<Speciality>((string)dataReader["Specialty"], out var speciality);
+                    Enum.TryParse<Speciality>(dataReader["Specialty"].ToString(), out var speciality);
 
                     var trainer = new Trainer
                     {
@@ -66,37 +67,33 @@ namespace BranchAndChicken.Api.DataAccess
                     };
                     trainers.Add(trainer);
                 }
-
-                dataReader.Dispose();
-                cmd.Dispose();
-                connection.Close();
+                return trainers;
             }
-
-            return trainers;
+            
         }
 
-        public Trainer Get(string name)
+/*        public Trainer Get(string name)
         {
             var trainer = _trainers.FirstOrDefault(t => t.Name == name);
             return trainer;
-        }
+        }*/
 
         public void Remove(string name)
         {
-            _trainers.Remove(Get(name));
+           // _trainers.Remove(Get(name));
         }
 
-        public Trainer Update(Trainer updatedTrainer, int id)
+/*        public Trainer Update(Trainer updatedTrainer, int id)
         {
             var trainerToUpdate = _trainers.First(trainer => trainer.Id == id);
             trainerToUpdate.Name = updatedTrainer.Name;
             trainerToUpdate.Speciality = updatedTrainer.Speciality;
             trainerToUpdate.YearsOfExperience = updatedTrainer.YearsOfExperience;
             return trainerToUpdate;
-        }
+        }*/
         public Trainer Add(Trainer newTrainer)
         {
-            _trainers.Add(newTrainer);
+          //  _trainers.Add(newTrainer);
             return newTrainer;
         }
     }
