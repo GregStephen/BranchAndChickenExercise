@@ -36,7 +36,7 @@ namespace BranchAndChicken.Api.Controllers
 
             return Ok();
         }
-/*        [HttpPut("{id}")]
+        [HttpPut("{id}")]
         public IActionResult UpdateTrainer(UpdateTrainerCommand updatedTrainerCommand, int id)
         {
             var repo = new TrainerRepository();
@@ -48,9 +48,9 @@ namespace BranchAndChicken.Api.Controllers
                 Speciality = updatedTrainerCommand.Speciality
             };
 
-           var trainerThatGotUpdated = repo.Update(updatedTrainer, id);
+            var trainerThatGotUpdated = repo.Update(updatedTrainer, id);
             return Ok(trainerThatGotUpdated);
-        }*/
+        }
 
         [HttpPost]
         public IActionResult CreateTrainer(AddTrainerCommand newTrainerCommand)

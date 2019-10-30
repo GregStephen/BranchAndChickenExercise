@@ -38,63 +38,127 @@ namespace BranchAndChicken.Api.DataAccess
         string _connectionString = "Server=localhost;Database=BranchAndChicken;Trusted_Connection=True;";
 
         public List<Trainer> GetAll()
-        {
-     
+        {  
             using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-
                 var cmd = connection.CreateCommand();
                 cmd.CommandText = @"SELECT * 
                                 FROM Trainer";
-
                 var dataReader = cmd.ExecuteReader();
-
                 var trainers = new List<Trainer>();
                 while (dataReader.Read())
                 {
-                    var id = (int)dataReader["Id"];
-                    var name = (string)dataReader["Name"];
-                    var yearsOfExperience = (int)dataReader["YearsOfExperience"];
-                    Enum.TryParse<Speciality>(dataReader["Specialty"].ToString(), out var speciality);
-
-                    var trainer = new Trainer
-                    {
-                        Speciality = speciality,
-                        Id = id,
-                        Name = name,
-                        YearsOfExperience = yearsOfExperience
-                    };
-                    trainers.Add(trainer);
+                    trainers.Add(GetTrainerFromDataReader(dataReader));
                 }
                 return trainers;
+            } 
+        }
+
+        public Trainer Get(string name)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                var cmd = connection.CreateCommand();
+                cmd.CommandText = 
+                    $@"SELECT *
+                       FROM Trainer
+                       WHERE Trainer.Name = @trainerName";
+
+                cmd.Parameters.AddWithValue("trainerName", name);
+                var reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    return GetTrainerFromDataReader(reader);
+                }
             }
-            
+            return null;
         }
 
-/*        public Trainer Get(string name)
+        public bool Remove(string name)
         {
-            var trainer = _trainers.FirstOrDefault(t => t.Name == name);
-            return trainer;
-        }*/
-
-        public void Remove(string name)
-        {
-           // _trainers.Remove(Get(name));
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                var cmd = connection.CreateCommand();
+                cmd.CommandText = 
+                    @"DELETE
+                      FROM Trainer
+                      WHERE [name] = @name";
+                cmd.Parameters.AddWithValue("name", name);
+                return cmd.ExecuteNonQuery() == 1;
+            }
         }
 
-/*        public Trainer Update(Trainer updatedTrainer, int id)
+       public Trainer Update(Trainer updatedTrainer, int id)
         {
-            var trainerToUpdate = _trainers.First(trainer => trainer.Id == id);
-            trainerToUpdate.Name = updatedTrainer.Name;
-            trainerToUpdate.Speciality = updatedTrainer.Speciality;
-            trainerToUpdate.YearsOfExperience = updatedTrainer.YearsOfExperience;
-            return trainerToUpdate;
-        }*/
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                var cmd = connection.CreateCommand();
+                cmd.CommandText = @"
+                    UPDATE [Trainer]
+                    SET [Name] = @name
+                          ,[YearsOfExperience] = @yearsOfExperience
+                          ,[Specialty] = @specialty
+                    OUTPUT inserted.*
+                    WHERE id = @id";
+                cmd.Parameters.AddWithValue("name", updatedTrainer.Name);
+                cmd.Parameters.AddWithValue("yearsOfExperience", updatedTrainer.YearsOfExperience);
+                cmd.Parameters.AddWithValue("specialty", updatedTrainer.Speciality);
+                cmd.Parameters.AddWithValue("id", id);
+                var reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    return GetTrainerFromDataReader(reader);
+                }
+                return null;
+            }
+        }
         public Trainer Add(Trainer newTrainer)
         {
-          //  _trainers.Add(newTrainer);
-            return newTrainer;
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                var cmd = connection.CreateCommand();
+                cmd.CommandText = @"
+                    INSERT INTO [Trainer]
+                        ([Name]
+                        ,[YearsOfExperience]
+                        ,[Specialty])
+	                OUTPUT insterted.*
+                    VALUES
+                        (@name
+                        ,@yearsOfExperience
+                        ,@specialty)";
+                cmd.Parameters.AddWithValue("name", newTrainer.Name);
+                cmd.Parameters.AddWithValue("yearsOfExperience", newTrainer.YearsOfExperience);
+                cmd.Parameters.AddWithValue("specialty", newTrainer.Speciality);
+
+                var reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    return GetTrainerFromDataReader(reader);
+                }
+                return null;
+            }
+        }
+
+        Trainer GetTrainerFromDataReader(SqlDataReader reader)
+        {
+            var id = (int)reader["Id"];
+            var name = (string)reader["Name"];
+            var yearsOfExperience = (int)reader["YearsOfExperience"];
+            Enum.TryParse<Speciality>(reader["Specialty"].ToString(), out var speciality);
+            var trainer = new Trainer
+            {
+                Speciality = speciality,
+                Id = id,
+                Name = name,
+                YearsOfExperience = yearsOfExperience
+            };
+            return trainer;
         }
     }
 }
